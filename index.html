@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111816" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CLAT Drill">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}html{-webkit-text-size-adjust:100%}</style>
+<title>CLAT Daily Drill</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one-column phone app; a fixed bottom tab bar; each screen is a stack of plain sections, cards only for the active question. */
+:root{
+  --bg:#f3f5f4; --surface:#ffffff; --ink:#18231f; --muted:#5d6b66; --line:#d9e0dd;
+  --accent:#1d6b57; --accent-ink:#ffffff; --accent-soft:#e1efea;
+  --good:#1f7a3f; --good-soft:#e3f3e8; --bad:#b3372b; --bad-soft:#f9e6e3; --warn:#9a6a00;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Figtree",-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#111816; --surface:#19221f; --ink:#e6eeeb; --muted:#9aaaa4; --line:#2c3935;
+  --accent:#4fb497; --accent-ink:#0c1512; --accent-soft:#1d332c;
+  --good:#5cc983; --good-soft:#173322; --bad:#ef8579; --bad-soft:#3a1e1b; --warn:#e2b04a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#111816; --surface:#19221f; --ink:#e6eeeb; --muted:#9aaaa4; --line:#2c3935;
+  --accent:#4fb497; --accent-ink:#0c1512; --accent-soft:#1d332c;
+  --good:#5cc983; --good-soft:#173322; --bad:#ef8579; --bad-soft:#3a1e1b; --warn:#e2b04a; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px calc(96px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{text-wrap:balance;margin:0}
+h1{font-family:var(--serif);font-weight:600;font-size:1.9rem;line-height:1.15}
+h2{font-size:1.05rem;font-weight:700}
+.eyebrow{font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.num{font-variant-numeric:tabular-nums}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{border:0;border-radius:12px;padding:14px 18px;font-weight:600;background:var(--accent);color:var(--accent-ink);min-height:48px}
+.btn.ghost{background:transparent;color:var(--accent);border:1.5px solid var(--accent)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:default}
+.link{background:none;border:0;color:var(--accent);font-weight:600;padding:6px 0}
+
+/* Today */
+.hero{display:flex;flex-direction:column;gap:6px;padding-block:6px 4px}
+.streak{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px}
+.stat b{display:block;font-size:1.5rem;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:.8rem;color:var(--muted)}
+.drill{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:12px}
+.drill .spread h2{font-family:var(--serif);font-size:1.35rem;font-weight:600}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-size:.78rem;font-weight:600;padding:3px 10px;border-radius:99px;background:var(--accent-soft);color:var(--accent)}
+.chip.bad{background:var(--bad-soft);color:var(--bad)}
+.chip.good{background:var(--good-soft);color:var(--good)}
+.chip.plain{background:transparent;border:1px solid var(--line);color:var(--muted)}
+.week{display:grid;grid-template-columns:repeat(14,1fr);gap:4px}
+.week i{display:block;aspect-ratio:1;border-radius:4px;background:var(--line)}
+.week i.l1{background:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.week i.l2{background:var(--accent)}
+
+/* Session */
+.topbar{display:flex;align-items:center;gap:12px}
+.bar{flex:1;height:6px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.qcard{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:16px}
+.word{font-family:var(--serif);font-size:2.2rem;font-weight:600;line-height:1.1;overflow-wrap:anywhere}
+.pos{font-family:var(--serif);font-style:italic;color:var(--muted)}
+.ctx{font-family:var(--serif);font-size:1.18rem;line-height:1.5}
+.ctx mark{background:var(--accent-soft);color:inherit;padding:0 3px;border-radius:4px;font-weight:600}
+.prompt{font-weight:600}
+.gkq{font-family:var(--serif);font-size:1.22rem;line-height:1.45}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:13px 14px;min-height:50px;line-height:1.35;display:flex;gap:10px;align-items:flex-start}
+.opt .k{flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);font-size:.78rem;font-weight:700;display:grid;place-items:center;color:var(--muted);margin-top:1px}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.right .k{border-color:var(--good);background:var(--good);color:var(--surface)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .k{border-color:var(--bad);background:var(--bad);color:var(--surface)}
+.opt:disabled{cursor:default;color:inherit}
+.feedback{border-radius:12px;padding:12px 14px;font-size:.95rem}
+.feedback.good{background:var(--good-soft)}
+.feedback.bad{background:var(--bad-soft)}
+.feedback strong{display:block;margin-bottom:2px}
+.learn{border-left:3px solid var(--accent);padding-left:12px}
+.newtag{align-self:flex-start}
+
+/* Lists */
+.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.li{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);min-width:0}
+.li .grow{flex:1;min-width:0}
+.li .w{font-family:var(--serif);font-size:1.12rem;font-weight:600}
+.li .m{font-size:.88rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.topic{background:none;border:0;border-bottom:1px solid var(--line);text-align:left;padding:14px 0;display:flex;flex-direction:column;gap:8px;width:100%}
+.meter{height:8px;border-radius:8px;background:var(--line);overflow:hidden}
+.meter>i{display:block;height:100%;background:var(--accent)}
+.dots{display:flex;gap:3px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.dots i.on{background:var(--accent)}
+input[type=search],input[type=text],textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px}
+textarea{min-height:90px;resize:vertical}
+label{font-size:.85rem;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:6px}
+details{border:1px solid var(--line);border-radius:14px;padding:14px;background:var(--surface)}
+summary{font-weight:700;cursor:pointer}
+.note{font-size:.85rem;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:.9rem;z-index:30;max-width:calc(100% - 32px)}
+
+/* Tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav.tabs button{background:none;border:0;padding:10px 4px 12px;font-size:.78rem;font-weight:600;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px}
+nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<div class="wrap" id="app"></div>
+<nav class="tabs" id="tabs" aria-label="Sections">
+  <button data-tab="today"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/></svg>Today</button>
+  <button data-tab="vocab"><svg viewBox="0 0 24 24"><path d="M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4z"/><path d="M9 9h6M9 13h4"/></svg>Words</button>
+  <button data-tab="gk"><svg viewBox="0 0 24 24"><path d="M12 3 3 8h18z"/><path d="M5 10v7M10 10v7M14 10v7M19 10v7M3 20h18"/></svg>GK</button>
+  <button data-tab="progress"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progress</button>
+</nav>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+const VOCAB_RAW = [["abate", "verb", "to become less intense or widespread", "The protests did not abate even after the minister promised a review of the policy."], ["aberration", "noun", "a departure from what is normal or expected", "The court treated the delayed verdict as an aberration rather than a sign of systemic failure."], ["abrogate", "verb", "to repeal or formally abolish a law or agreement", "The government's decision to abrogate the treaty drew sharp criticism from neighbouring countries."], ["acquiesce", "verb", "to accept something reluctantly without protest", "The smaller parties acquiesced to the coalition's demands to avoid a fresh election."], ["adjudicate", "verb", "to make a formal judgement on a disputed matter", "A special tribunal was set up to adjudicate disputes over river water sharing."], ["admonish", "verb", "to warn or reprimand someone firmly", "The Speaker admonished members for disrupting Question Hour for the third day running."], ["adversarial", "adjective", "involving opposition or conflict between two sides", "India follows an adversarial system in which two parties argue before a neutral judge."], ["alleviate", "verb", "to make suffering or a problem less severe", "Free ration schemes were meant to alleviate hunger during the lockdown."], ["ambiguous", "adjective", "open to more than one interpretation", "The clause was so ambiguous that both sides claimed it supported their case."], ["ameliorate", "verb", "to make something bad better", "New irrigation projects aim to ameliorate the distress of farmers in drought-prone districts."], ["anachronism", "noun", "something that belongs to an earlier time and seems out of place now", "Critics call the colonial-era sedition law an anachronism in a modern democracy."], ["antithetical", "adjective", "directly opposed or contrary", "Arbitrary arrests are antithetical to the rule of law."], ["apathy", "noun", "lack of interest, enthusiasm or concern", "Low turnout in urban constituencies is often blamed on voter apathy."], ["arbitrary", "adjective", "based on random choice or personal whim rather than reason", "The Supreme Court held that an arbitrary action of the State violates Article 14."], ["ascertain", "verb", "to find out for certain", "The committee was asked to ascertain the facts before recommending any action."], ["austere", "adjective", "severely simple; strict and without comfort or luxury", "The new finance minister announced an austere budget with deep cuts in spending."], ["benevolent", "adjective", "well-meaning and kindly", "The scheme was presented as a benevolent gesture, but critics saw political motives behind it."], ["bolster", "verb", "to support or strengthen", "The central bank cut rates to bolster economic growth."], ["candid", "adjective", "truthful and straightforward; frank", "In a candid interview, the former judge admitted that the backlog of cases was alarming."], ["capricious", "adjective", "given to sudden, unaccountable changes of mood or behaviour", "Investors complained that capricious changes in tax policy made planning impossible."], ["circumvent", "verb", "to find a way around an obstacle or rule", "Companies used shell firms to circumvent the disclosure requirements."], ["cogent", "adjective", "clear, logical and convincing", "The petitioner's lawyer made a cogent argument that the rule violated the right to privacy."], ["commensurate", "adjective", "corresponding in size or degree; proportionate", "The punishment must be commensurate with the gravity of the offence."], ["complacent", "adjective", "smugly satisfied, unaware of possible dangers", "Health experts warned against becoming complacent as case numbers began to fall."], ["concur", "verb", "to agree", "Two judges concurred with the majority opinion but wrote separate reasons."], ["condone", "verb", "to accept or overlook behaviour that is morally wrong", "No civilised society can condone violence against journalists."], ["conjecture", "noun", "an opinion formed on incomplete information; a guess", "Reports of a cabinet reshuffle remain pure conjecture at this stage."], ["contentious", "adjective", "causing or likely to cause disagreement", "The farm laws proved so contentious that they were eventually repealed."], ["corroborate", "verb", "to confirm or give support to a statement or theory", "Two independent witnesses corroborated the victim's account."], ["credible", "adjective", "able to be believed; convincing", "The investigation lacked credible evidence linking the accused to the crime."], ["curtail", "verb", "to reduce or restrict", "Critics argued that the new rules would curtail the freedom of the press."], ["deference", "noun", "polite submission and respect", "Courts usually show deference to the legislature on questions of economic policy."], ["deleterious", "adjective", "causing harm or damage", "The deleterious effects of air pollution on children's lungs are well documented."], ["demarcate", "verb", "to set or mark the boundaries of something", "The commission was asked to demarcate the boundary between the two states."], ["deter", "verb", "to discourage someone from doing something, usually through fear of consequences", "Heavy fines are meant to deter drivers from jumping red lights."], ["detrimental", "adjective", "tending to cause harm", "Excessive screen time can be detrimental to a student's concentration."], ["didactic", "adjective", "intended to teach, often in a preachy way", "The film was criticised for being too didactic and lecturing its audience."], ["discretion", "noun", "the freedom to decide what should be done in a situation", "Granting bail is largely a matter of judicial discretion."], ["disparity", "noun", "a great difference or inequality", "The report highlighted the disparity in income between rural and urban households."], ["dissent", "noun", "the expression of opinions different from those officially held", "The judge's dissent later became the basis of a landmark ruling."], ["egregious", "adjective", "outstandingly bad; shocking", "The court called the custodial death an egregious violation of human rights."], ["elucidate", "verb", "to make something clear; to explain", "The minister was asked to elucidate how the scheme would be funded."], ["empirical", "adjective", "based on observation or experiment rather than theory", "There is little empirical evidence that the death penalty deters crime."], ["enervate", "verb", "to cause someone to feel drained of energy", "The relentless summer heat enervated the workers on the construction site."], ["ephemeral", "adjective", "lasting for a very short time", "Social media outrage is often ephemeral and fades within days."], ["equivocal", "adjective", "open to more than one interpretation; deliberately unclear", "The spokesperson gave an equivocal reply when asked whether talks had failed."], ["erode", "verb", "to gradually wear away or destroy", "Repeated paper leaks have eroded public trust in recruitment exams."], ["exacerbate", "verb", "to make a problem or bad situation worse", "Stubble burning exacerbates the air pollution crisis in north India every winter."], ["exemplary", "adjective", "serving as a desirable model; very good", "The court imposed exemplary costs to discourage frivolous petitions."], ["exonerate", "verb", "to officially declare someone free from blame", "The inquiry exonerated the officer of all charges of misconduct."], ["expedite", "verb", "to make an action or process happen sooner", "Fast-track courts were set up to expedite the trial of sexual offences."], ["fallacious", "adjective", "based on a mistaken belief or faulty reasoning", "The argument that poverty is caused by laziness is fallacious."], ["feasible", "adjective", "possible to do easily or conveniently", "Experts doubt whether simultaneous elections are feasible without amending the Constitution."], ["fortuitous", "adjective", "happening by chance rather than design", "The discovery of the manuscript in a village library was entirely fortuitous."], ["frivolous", "adjective", "not having any serious purpose or value", "The Supreme Court dismissed the frivolous petition and imposed costs on the petitioner."], ["galvanise", "verb", "to shock or excite someone into taking action", "The incident galvanised students across the country to demand safer campuses."], ["gratuitous", "adjective", "uncalled for; lacking good reason", "Reviewers objected to the gratuitous violence in the film."], ["hegemony", "noun", "dominance of one group or state over others", "Smaller nations in the region resent the economic hegemony of their large neighbour."], ["impartial", "adjective", "treating all rivals or disputants equally; fair", "An impartial judiciary is essential to the rule of law."], ["impede", "verb", "to delay or prevent by obstructing", "Poor roads continue to impede the delivery of healthcare in remote areas."], ["imperative", "noun", "an essential or urgent thing", "Reducing carbon emissions has become a global imperative."], ["implicit", "adjective", "suggested though not directly expressed", "The right to privacy was held to be implicit in the right to life under Article 21."], ["incumbent", "noun", "the holder of an office or post", "The incumbent lost the election by a narrow margin."], ["indigenous", "adjective", "originating or occurring naturally in a particular place; native", "The forest rights law recognises the claims of indigenous communities over forest land."], ["infringe", "verb", "to actively break the terms of a law or violate a right", "The petition argued that the ban infringed the right to freedom of speech."], ["innocuous", "adjective", "not harmful or offensive", "The tweet seemed innocuous, but it triggered a diplomatic row."], ["intransigent", "adjective", "unwilling to change one's views or to agree", "Talks broke down because both sides remained intransigent on the boundary issue."], ["jurisprudence", "noun", "the theory or philosophy of law; a body of court decisions", "Indian jurisprudence on free speech has evolved through decades of Supreme Court rulings."], ["lacklustre", "adjective", "lacking in vitality, force or conviction", "The team's lacklustre performance led to calls for the coach to resign."], ["latent", "adjective", "existing but not yet developed or visible", "The crisis brought latent tensions within the alliance to the surface."], ["legitimate", "adjective", "conforming to the law or to rules; able to be defended with logic", "Citizens have a legitimate expectation that the State will act fairly."], ["lucid", "adjective", "expressed clearly; easy to understand", "The judgment is admired for its lucid explanation of a complex legal question."], ["mandate", "noun", "the authority to carry out a policy, given by voters or a governing body", "The party claimed the election result was a clear mandate for economic reform."], ["meticulous", "adjective", "showing great attention to detail; very careful", "The auditor's meticulous review uncovered irregularities worth crores."], ["mitigate", "verb", "to make something less severe, serious or painful", "Mangrove forests help mitigate the impact of cyclones on coastal villages."], ["myriad", "adjective", "countless; extremely great in number", "The new city faces myriad challenges, from water scarcity to traffic congestion."], ["nascent", "adjective", "just coming into existence and beginning to develop", "India's nascent semiconductor industry needs sustained policy support."], ["nebulous", "adjective", "vague or ill-defined", "The government's plan to double incomes was criticised as nebulous."], ["negligible", "adjective", "so small or unimportant as to be not worth considering", "The impact of the price rise on overall inflation was negligible."], ["nuance", "noun", "a subtle difference in meaning, expression or sound", "The translation failed to capture the nuances of the original poem."], ["obsolete", "adjective", "no longer produced or used; out of date", "Hundreds of obsolete laws were repealed in a single legislative drive."], ["onerous", "adjective", "involving a great deal of effort, trouble or difficulty", "Small businesses found the compliance requirements onerous."], ["opaque", "adjective", "not able to be seen through; not easily understood", "Electoral funding remained opaque, with donors' names kept secret."], ["paradigm", "noun", "a typical model or pattern of something", "The internet brought about a paradigm shift in how news is consumed."], ["paramount", "adjective", "more important than anything else; supreme", "In custody disputes, the welfare of the child is of paramount importance."], ["pervasive", "adjective", "spreading widely throughout an area or group", "Corruption remains pervasive in the lower levels of the bureaucracy."], ["plausible", "adjective", "seeming reasonable or probable", "The defence offered a plausible explanation for the delay in filing the complaint."], ["pragmatic", "adjective", "dealing with things sensibly and realistically", "India has adopted a pragmatic foreign policy, engaging with rival powers at the same time."], ["precarious", "adjective", "not securely held; dangerously likely to fall or collapse", "Gig workers live in precarious conditions without social security."], ["precedent", "noun", "an earlier event or decision used as an example or guide", "The ruling set a precedent for future cases involving data privacy."], ["preclude", "verb", "to prevent something from happening; to make impossible", "The existence of an alternative remedy does not preclude the High Court from hearing a writ petition."], ["prerogative", "noun", "a right or privilege exclusive to a particular person or class", "Granting pardons is the prerogative of the President under Article 72."], ["proliferation", "noun", "rapid increase in numbers", "The proliferation of fake news on messaging apps worries election officials."], ["prudent", "adjective", "acting with care and thought for the future", "It would be prudent to build up foreign exchange reserves before a global slowdown."], ["punitive", "adjective", "inflicting or intended as punishment", "The court awarded punitive damages against the company for its negligence."], ["quell", "verb", "to put an end to a rebellion or disorder, usually by force", "Additional police forces were deployed to quell the riots."], ["rampant", "adjective", "flourishing or spreading unchecked", "Rampant sand mining has damaged several river beds."], ["recalcitrant", "adjective", "stubbornly uncooperative towards authority", "The tribunal imposed fines on recalcitrant companies that ignored its orders."], ["redress", "noun", "remedy or compensation for a wrong or grievance", "Consumers can seek redress from consumer commissions for defective products."], ["relegate", "verb", "to assign to a lower rank or position", "Women's safety was relegated to a footnote in the party's manifesto."], ["repudiate", "verb", "to refuse to accept; to reject", "The minister repudiated the allegations as baseless."], ["rescind", "verb", "to revoke, cancel or repeal a law, order or agreement", "The university rescinded its order after students protested."], ["resilient", "adjective", "able to recover quickly from difficulties", "Kerala's fishing communities proved resilient after the floods."], ["salient", "adjective", "most noticeable or important", "The salient features of the new criminal laws were explained to police officers."], ["scrutiny", "noun", "critical observation or examination", "The bill was referred to a select committee for detailed scrutiny."], ["sporadic", "adjective", "occurring at irregular intervals or only in a few places", "Sporadic incidents of violence were reported during the polling."], ["stringent", "adjective", "strict, precise and exacting", "Stringent emission norms forced car makers to upgrade their engines."], ["substantiate", "verb", "to provide evidence to support a claim", "The complainant failed to substantiate her allegations with documents."], ["superfluous", "adjective", "unnecessary, especially through being more than enough", "The editor removed superfluous words to make the article crisper."], ["tacit", "adjective", "understood or implied without being stated", "There appeared to be a tacit understanding between the two parties not to field candidates against each other."], ["tenuous", "adjective", "very weak or slight", "The link between the accused and the crime was tenuous at best."], ["transient", "adjective", "lasting only for a short time; impermanent", "Economists described the spike in vegetable prices as transient."], ["ubiquitous", "adjective", "present, appearing or found everywhere", "Smartphones have become ubiquitous even in rural India."], ["unprecedented", "adjective", "never done or known before", "The pandemic caused an unprecedented disruption to schooling."], ["untenable", "adjective", "not able to be maintained or defended against attack", "The court found the government's argument untenable in light of earlier judgments."], ["vindicate", "verb", "to clear someone of blame or suspicion; to show to be right", "The acquittal vindicated the activist's claim that he had been falsely accused."], ["volatile", "adjective", "liable to change rapidly and unpredictably", "Oil prices remain volatile because of conflicts in West Asia."], ["wane", "verb", "to decrease in strength or extent", "Public interest in the case began to wane after the first few hearings."], ["zealous", "adjective", "showing great energy or enthusiasm for a cause", "Overly zealous officials sealed shops without giving owners a hearing."]];
+const GK = {"topics": [{"id": "rbi", "name": "RBI and its functions"}, {"id": "caa", "name": "Important Amendment Acts"}, {"id": "amend", "name": "Amending the Constitution"}, {"id": "evol", "name": "Evolution of the Constitution"}, {"id": "sched", "name": "Schedules of the Constitution"}, {"id": "parl", "name": "The Parliament"}, {"id": "summit", "name": "Summits and groupings"}], "questions": [{"t": "rbi", "q": "The Reserve Bank of India began operations on 1 April 1935 under which law?", "o": ["Banking Regulation Act, 1949", "Reserve Bank of India Act, 1934", "Government of India Act, 1935", "Indian Coinage Act, 1906"], "a": 1, "e": "The RBI was set up under the RBI Act, 1934 and started functioning on 1 April 1935."}, {"t": "rbi", "q": "The RBI was set up on the recommendation of which commission?", "o": ["Simon Commission", "Hilton Young Commission", "Narasimham Committee", "Sarkaria Commission"], "a": 1, "e": "The Royal Commission on Indian Currency and Finance (1926), known as the Hilton Young Commission, recommended a central bank."}, {"t": "rbi", "q": "In which year was the RBI nationalised?", "o": ["1947", "1949", "1969", "1980"], "a": 1, "e": "The RBI was nationalised on 1 January 1949. (1969 and 1980 are the years commercial banks were nationalised.)"}, {"t": "rbi", "q": "Where was the RBI's central office first located before it moved permanently to Mumbai in 1937?", "o": ["Delhi", "Madras", "Calcutta", "Shimla"], "a": 2, "e": "The central office was first in Calcutta (Kolkata) and moved to Bombay (Mumbai) in 1937."}, {"t": "rbi", "q": "Who was the first Indian Governor of the RBI?", "o": ["Osborne Smith", "C. D. Deshmukh", "Benegal Rama Rau", "Manmohan Singh"], "a": 1, "e": "Sir Osborne Smith was the first Governor; C. D. Deshmukh (1943) was the first Indian Governor."}, {"t": "rbi", "q": "The repo rate is the rate at which:", "o": ["Banks lend to their best customers", "The RBI lends short-term funds to commercial banks against government securities", "The RBI borrows money from commercial banks", "The government borrows from the RBI"], "a": 1, "e": "Repo = repurchase agreement. The RBI lends to banks for a short term, taking securities as collateral."}, {"t": "rbi", "q": "How many members does the Monetary Policy Committee (MPC) have?", "o": ["4", "5", "6", "7"], "a": 2, "e": "The MPC has 6 members: 3 from the RBI (including the Governor as chair) and 3 external members appointed by the Centre."}, {"t": "rbi", "q": "What is the inflation target the RBI must maintain under the flexible inflation targeting framework?", "o": ["2% CPI inflation, ±1%", "4% CPI inflation, ±2%", "5% WPI inflation, ±1%", "6% CPI inflation, ±2%"], "a": 1, "e": "The target is 4% CPI inflation with a tolerance band of 2% on either side (2%–6%)."}, {"t": "rbi", "q": "The Cash Reserve Ratio (CRR) is the share of a bank's deposits that it must:", "o": ["Invest in gold and government bonds", "Keep as cash with the RBI", "Lend to the priority sector", "Keep as cash in its own branches"], "a": 1, "e": "CRR is held as cash balances with the RBI. SLR (Statutory Liquidity Ratio) is kept by the bank itself in cash, gold or approved securities."}, {"t": "rbi", "q": "Which currency note is NOT issued by the RBI?", "o": ["₹1 note", "₹2 note", "₹10 note", "₹500 note"], "a": 0, "e": "The ₹1 note is issued by the Government of India (Ministry of Finance) and carries the Finance Secretary's signature. Coins are also minted by the government."}, {"t": "rbi", "q": "When the RBI buys or sells government securities in the open market to control liquidity, it is called:", "o": ["Open Market Operations", "Moral suasion", "Selective credit control", "Bank rate policy"], "a": 0, "e": "Buying securities injects money into the system; selling them absorbs money."}, {"t": "rbi", "q": "The RBI is called the 'lender of last resort' because it:", "o": ["Lends to the government when taxes fall short", "Provides emergency funds to banks in a liquidity crisis", "Lends to farmers when other banks refuse", "Lends to foreign governments"], "a": 1, "e": "When banks cannot raise money anywhere else, the RBI steps in to prevent a banking collapse."}, {"t": "rbi", "q": "The Standing Deposit Facility (SDF), introduced in 2022, now acts as:", "o": ["The ceiling of the liquidity corridor", "The floor of the liquidity corridor", "A deposit insurance scheme", "A savings scheme for citizens"], "a": 1, "e": "The SDF lets banks park surplus funds with the RBI without collateral; it replaced the fixed reverse repo as the floor of the LAF corridor."}, {"t": "rbi", "q": "Which is NOT a function of the RBI?", "o": ["Banker to the government", "Custodian of foreign exchange reserves", "Collecting income tax", "Regulator of banks"], "a": 2, "e": "Income tax is collected by the Income Tax Department under the Central Board of Direct Taxes."}, {"t": "rbi", "q": "The RBI's pilot of the digital rupee (e₹), a Central Bank Digital Currency, began in which year?", "o": ["2019", "2020", "2022", "2024"], "a": 2, "e": "The wholesale pilot began on 1 November 2022 and the retail pilot on 1 December 2022."}, {"t": "rbi", "q": "Who appoints the Governor of the RBI?", "o": ["The President on advice of the Chief Justice", "The Central Government", "The RBI Central Board", "The Parliament"], "a": 1, "e": "Under the RBI Act, the Governor and Deputy Governors are appointed by the Central Government."}, {"t": "caa", "q": "Which Amendment Act added the Ninth Schedule to the Constitution?", "o": ["1st Amendment, 1951", "7th Amendment, 1956", "24th Amendment, 1971", "42nd Amendment, 1976"], "a": 0, "e": "The 1st Amendment (1951) added the Ninth Schedule to protect land reform laws from court challenge."}, {"t": "caa", "q": "The reorganisation of states on linguistic lines and the abolition of Part A, B, C and D states was done by:", "o": ["1st Amendment", "7th Amendment", "42nd Amendment", "73rd Amendment"], "a": 1, "e": "The 7th Amendment (1956) implemented the States Reorganisation Act and created Union Territories."}, {"t": "caa", "q": "Which amendment is known as the 'mini-Constitution'?", "o": ["24th Amendment", "42nd Amendment", "44th Amendment", "52nd Amendment"], "a": 1, "e": "The 42nd Amendment (1976) made sweeping changes, including adding Fundamental Duties and the words socialist, secular and integrity to the Preamble."}, {"t": "caa", "q": "Which three words were added to the Preamble by the 42nd Amendment?", "o": ["Sovereign, democratic, republic", "Socialist, secular, integrity", "Justice, liberty, equality", "Fraternity, dignity, unity"], "a": 1, "e": "'Socialist' and 'secular' were added after 'sovereign', and 'unity of the nation' became 'unity and integrity of the nation'."}, {"t": "caa", "q": "The Right to Property was removed from the list of Fundamental Rights by:", "o": ["42nd Amendment", "44th Amendment", "52nd Amendment", "61st Amendment"], "a": 1, "e": "The 44th Amendment (1978) deleted Article 31 and made property a legal right under Article 300A."}, {"t": "caa", "q": "The 44th Amendment replaced 'internal disturbance' with which term as a ground for national emergency?", "o": ["Civil unrest", "Armed rebellion", "External aggression", "Failure of constitutional machinery"], "a": 1, "e": "This was done to prevent misuse of emergency powers, as had happened in 1975."}, {"t": "caa", "q": "The anti-defection law (Tenth Schedule) was added by which amendment?", "o": ["42nd", "44th", "52nd", "61st"], "a": 2, "e": "The 52nd Amendment (1985) added the Tenth Schedule. The 91st Amendment (2003) later removed the 'split' exception."}, {"t": "caa", "q": "Which amendment reduced the voting age from 21 to 18 years?", "o": ["52nd", "61st", "73rd", "86th"], "a": 1, "e": "The 61st Amendment Act (1988, in force 1989) lowered the voting age."}, {"t": "caa", "q": "Constitutional status for Panchayati Raj institutions (Part IX and the Eleventh Schedule) was given by:", "o": ["72nd Amendment", "73rd Amendment", "74th Amendment", "86th Amendment"], "a": 1, "e": "The 73rd Amendment (1992) added Part IX and the Eleventh Schedule with 29 subjects. The 74th did the same for municipalities."}, {"t": "caa", "q": "Article 21A, the right to free and compulsory education for children aged 6 to 14, was inserted by:", "o": ["73rd Amendment", "86th Amendment", "91st Amendment", "97th Amendment"], "a": 1, "e": "The 86th Amendment (2002) also added a Fundamental Duty for parents to provide education opportunities (Article 51A(k))."}, {"t": "caa", "q": "The 91st Amendment (2003) capped the size of the Council of Ministers at:", "o": ["10% of the Lok Sabha's total strength", "15% of the Lok Sabha's total strength", "20% of the Lok Sabha's total strength", "One-third of the Lok Sabha's total strength"], "a": 1, "e": "The total number of ministers, including the PM, cannot exceed 15% of the total strength of the Lok Sabha (or the state Assembly)."}, {"t": "caa", "q": "The Goods and Services Tax (GST) was introduced by which amendment?", "o": ["99th", "100th", "101st", "102nd"], "a": 2, "e": "The 101st Amendment (2016) introduced GST and created the GST Council under Article 279A."}, {"t": "caa", "q": "The National Judicial Appointments Commission (NJAC), created by the 99th Amendment, was:", "o": ["Upheld by the Supreme Court in 2015", "Struck down by the Supreme Court in 2015", "Repealed by Parliament in 2018", "Never notified"], "a": 1, "e": "In the Fourth Judges Case (2015), the Supreme Court struck down the NJAC and restored the collegium system."}, {"t": "caa", "q": "Constitutional status to the National Commission for Backward Classes was given by:", "o": ["101st Amendment", "102nd Amendment", "103rd Amendment", "105th Amendment"], "a": 1, "e": "The 102nd Amendment (2018) inserted Article 338B."}, {"t": "caa", "q": "The 103rd Amendment (2019) provided up to 10% reservation for:", "o": ["Other Backward Classes", "Economically Weaker Sections", "Scheduled Tribes", "Women"], "a": 1, "e": "It inserted Articles 15(6) and 16(6) for EWS among those not covered by other reservations."}, {"t": "caa", "q": "The 106th Amendment (2023), known as the Nari Shakti Vandan Adhiniyam, reserves one-third of seats for women in:", "o": ["Lok Sabha and Rajya Sabha", "Lok Sabha, state Legislative Assemblies and the Delhi Assembly", "Panchayats only", "Rajya Sabha and Legislative Councils"], "a": 1, "e": "It does not apply to the Rajya Sabha or Legislative Councils. It takes effect after the next census and delimitation."}, {"t": "caa", "q": "Which amendment ended the nomination of Anglo-Indian members to the Lok Sabha?", "o": ["102nd", "103rd", "104th", "105th"], "a": 2, "e": "The 104th Amendment (2020) extended SC/ST seat reservation by 10 years but did not extend Anglo-Indian nominations."}, {"t": "amend", "q": "The procedure for amending the Constitution is laid down in:", "o": ["Article 352", "Article 360", "Article 368", "Article 370"], "a": 2, "e": "Article 368 in Part XX deals with the power of Parliament to amend the Constitution."}, {"t": "amend", "q": "A Constitutional Amendment Bill can be introduced in:", "o": ["Lok Sabha only", "Rajya Sabha only", "Either House of Parliament", "Either House of Parliament or a state legislature"], "a": 2, "e": "It can be introduced in either House of Parliament, but never in a state legislature."}, {"t": "amend", "q": "Which statement about introducing a Constitutional Amendment Bill is correct?", "o": ["Only a minister can introduce it", "Prior permission of the President is required", "It can be introduced by a minister or a private member without the President's permission", "It needs the consent of half the states before introduction"], "a": 2, "e": "No prior recommendation of the President is needed, and a private member can also introduce it."}, {"t": "amend", "q": "A 'special majority' under Article 368 means:", "o": ["Two-thirds of the total membership of each House", "A majority of the total membership of each House and two-thirds of members present and voting", "Three-fourths of members present and voting", "A simple majority in a joint sitting"], "a": 1, "e": "Both conditions must be met separately in each House."}, {"t": "amend", "q": "If the two Houses disagree on a Constitutional Amendment Bill:", "o": ["The President calls a joint sitting", "The Lok Sabha's decision prevails", "The bill fails, as there is no joint sitting for amendment bills", "The Supreme Court decides"], "a": 2, "e": "Article 108 joint sittings do not apply to Constitutional Amendment Bills."}, {"t": "amend", "q": "Amendments affecting the federal structure need, in addition to a special majority in Parliament:", "o": ["Ratification by all state legislatures", "Ratification by at least half of the state legislatures by simple majority", "Approval in a national referendum", "Approval of the Inter-State Council"], "a": 1, "e": "Examples include changes to the election of the President, the Supreme Court and High Courts, the distribution of legislative powers, and Article 368 itself."}, {"t": "amend", "q": "After the 24th Amendment (1971), when a Constitutional Amendment Bill is presented to the President, the President:", "o": ["May withhold assent", "May return it for reconsideration", "Must give assent", "Must refer it to the Supreme Court"], "a": 2, "e": "The 24th Amendment made it obligatory for the President to give assent."}, {"t": "amend", "q": "In which case did the Supreme Court propound the 'basic structure' doctrine?", "o": ["Golaknath v. State of Punjab (1967)", "Kesavananda Bharati v. State of Kerala (1973)", "Minerva Mills v. Union of India (1980)", "Maneka Gandhi v. Union of India (1978)"], "a": 1, "e": "The Court held that Parliament can amend any part of the Constitution but cannot destroy its basic structure."}, {"t": "amend", "q": "In which case did the Supreme Court rule that Parliament could NOT amend Fundamental Rights?", "o": ["Shankari Prasad (1951)", "Sajjan Singh (1965)", "Golaknath (1967)", "Kesavananda Bharati (1973)"], "a": 2, "e": "Golaknath was later overruled in Kesavananda Bharati. Shankari Prasad and Sajjan Singh had held that Fundamental Rights could be amended."}, {"t": "amend", "q": "Minerva Mills (1980) held that which of the following is itself part of the basic structure?", "o": ["The Ninth Schedule", "Parliament's limited amending power", "The Directive Principles", "The right to property"], "a": 1, "e": "The Court struck down clauses of the 42nd Amendment that gave Parliament unlimited amending power and barred judicial review."}, {"t": "amend", "q": "Which of these can be changed by a simple majority of Parliament and is NOT treated as an amendment under Article 368?", "o": ["Election of the President", "Formation of new states under Articles 2 and 3", "Fundamental Rights", "Powers of the Supreme Court"], "a": 1, "e": "Admission or formation of new states, abolition of Legislative Councils (Article 169) and quorum rules are examples of simple-majority changes."}, {"t": "amend", "q": "The procedure for amending the Constitution was borrowed from the constitution of:", "o": ["USA", "UK", "South Africa", "Canada"], "a": 2, "e": "Amendment procedure and the election of Rajya Sabha members are commonly cited as borrowed from South Africa."}, {"t": "evol", "q": "Which Act made the Governor of Bengal the 'Governor-General of Bengal' and set up a Supreme Court at Calcutta?", "o": ["Pitt's India Act, 1784", "Regulating Act, 1773", "Charter Act, 1813", "Charter Act, 1833"], "a": 1, "e": "Warren Hastings became the first Governor-General of Bengal. The Supreme Court at Calcutta was set up in 1774."}, {"t": "evol", "q": "Under which Act did the Governor-General of Bengal become the Governor-General of India?", "o": ["Charter Act, 1813", "Charter Act, 1833", "Charter Act, 1853", "Government of India Act, 1858"], "a": 1, "e": "Lord William Bentinck became the first Governor-General of India. The Act also ended the East India Company's commercial activities."}, {"t": "evol", "q": "Which Act first introduced open competition for recruitment to the civil services?", "o": ["Charter Act, 1833", "Charter Act, 1853", "Indian Councils Act, 1861", "Government of India Act, 1919"], "a": 1, "e": "The Charter Act of 1853 also separated the legislative and executive functions of the Governor-General's council."}, {"t": "evol", "q": "The Government of India Act, 1858 created which new office?", "o": ["Governor-General of India", "Secretary of State for India", "Chief Justice of India", "Prime Minister of India"], "a": 1, "e": "Rule passed from the Company to the Crown. The Governor-General was also given the title of Viceroy; Lord Canning was the first."}, {"t": "evol", "q": "Separate electorates for Muslims were introduced by:", "o": ["Indian Councils Act, 1892", "Indian Councils Act, 1909 (Morley-Minto Reforms)", "Government of India Act, 1919", "Government of India Act, 1935"], "a": 1, "e": "Lord Minto came to be called the 'Father of Communal Electorate'."}, {"t": "evol", "q": "Dyarchy in the provinces was introduced by:", "o": ["Indian Councils Act, 1909", "Government of India Act, 1919", "Government of India Act, 1935", "Indian Independence Act, 1947"], "a": 1, "e": "The 1919 Act (Montagu-Chelmsford Reforms) split provincial subjects into 'transferred' and 'reserved' lists. It also made the central legislature bicameral."}, {"t": "evol", "q": "Which Act abolished dyarchy in the provinces, gave provincial autonomy and provided for dyarchy at the Centre?", "o": ["Government of India Act, 1919", "Government of India Act, 1935", "Indian Independence Act, 1947", "Indian Councils Act, 1909"], "a": 1, "e": "The 1935 Act also set up a Federal Court (1937) and divided powers into three lists. Dyarchy at the Centre never came into effect."}, {"t": "evol", "q": "The All-India Federation proposed by the Government of India Act, 1935:", "o": ["Came into force in 1937", "Never came into being because the princely states did not join", "Came into force in 1947", "Was replaced by dyarchy in 1940"], "a": 1, "e": "The federation required the princely states to join, which did not happen."}, {"t": "evol", "q": "Who first put forward the idea of a Constituent Assembly for India, in 1934?", "o": ["Jawaharlal Nehru", "M. N. Roy", "B. R. Ambedkar", "Mahatma Gandhi"], "a": 1, "e": "The Indian National Congress officially demanded a Constituent Assembly in 1935."}, {"t": "evol", "q": "The Constituent Assembly was formed under which plan?", "o": ["Cripps Mission, 1942", "Wavell Plan, 1945", "Cabinet Mission Plan, 1946", "Mountbatten Plan, 1947"], "a": 2, "e": "Its members were elected indirectly by the provincial legislative assemblies."}, {"t": "evol", "q": "Who was the temporary (interim) President of the Constituent Assembly at its first meeting on 9 December 1946?", "o": ["Rajendra Prasad", "Sachchidananda Sinha", "B. R. Ambedkar", "H. C. Mukherjee"], "a": 1, "e": "Dr Rajendra Prasad was elected permanent President on 11 December 1946."}, {"t": "evol", "q": "The Objectives Resolution, which later shaped the Preamble, was moved by:", "o": ["B. R. Ambedkar", "Jawaharlal Nehru", "Sardar Patel", "Rajendra Prasad"], "a": 1, "e": "Nehru moved it on 13 December 1946, and it was adopted on 22 January 1947."}, {"t": "evol", "q": "Who chaired the Drafting Committee of the Constitution?", "o": ["Rajendra Prasad", "B. N. Rau", "B. R. Ambedkar", "K. M. Munshi"], "a": 2, "e": "B. N. Rau was the Constitutional Adviser to the Assembly."}, {"t": "evol", "q": "The Constitution was adopted on __ and came into force on __.", "o": ["15 August 1947; 26 January 1950", "26 November 1949; 26 January 1950", "26 January 1949; 26 November 1950", "9 December 1946; 26 January 1950"], "a": 1, "e": "26 November is celebrated as Constitution Day (Samvidhan Divas)."}, {"t": "evol", "q": "How many Articles, Parts and Schedules did the original Constitution have?", "o": ["395 Articles, 22 Parts, 8 Schedules", "448 Articles, 25 Parts, 12 Schedules", "395 Articles, 25 Parts, 12 Schedules", "321 Articles, 10 Parts, 8 Schedules"], "a": 0, "e": "321 sections and 10 schedules describes the Government of India Act, 1935."}, {"t": "sched", "q": "How many Schedules does the Constitution of India have today?", "o": ["8", "10", "12", "14"], "a": 2, "e": "The original Constitution had 8 Schedules; four more were added by amendments (9th, 10th, 11th, 12th)."}, {"t": "sched", "q": "The First Schedule contains:", "o": ["Forms of oaths", "Names of States and Union Territories and their territories", "Allocation of Rajya Sabha seats", "Salaries of constitutional officials"], "a": 1, "e": "Any change in a state's boundaries means amending the First Schedule."}, {"t": "sched", "q": "Salaries and allowances of the President, Governors, judges and the CAG are in the:", "o": ["First Schedule", "Second Schedule", "Third Schedule", "Fourth Schedule"], "a": 1, "e": "The Second Schedule deals with emoluments and privileges."}, {"t": "sched", "q": "Forms of oaths and affirmations are given in the:", "o": ["Second Schedule", "Third Schedule", "Fourth Schedule", "Eighth Schedule"], "a": 1, "e": "Note: the President's and Vice-President's oaths are in Articles 60 and 69, not in the Third Schedule."}, {"t": "sched", "q": "Allocation of seats in the Rajya Sabha to states and UTs is in the:", "o": ["Third Schedule", "Fourth Schedule", "Fifth Schedule", "Seventh Schedule"], "a": 1, "e": "Seats are allocated broadly on the basis of population."}, {"t": "sched", "q": "The Sixth Schedule deals with the administration of tribal areas in which states?", "o": ["Assam, Meghalaya, Tripura and Mizoram", "Jharkhand, Chhattisgarh, Odisha and Madhya Pradesh", "Nagaland, Manipur, Arunachal Pradesh and Sikkim", "All north-eastern states"], "a": 0, "e": "Scheduled Areas in other states fall under the Fifth Schedule."}, {"t": "sched", "q": "The Union List, State List and Concurrent List are contained in the:", "o": ["Fifth Schedule", "Sixth Schedule", "Seventh Schedule", "Eleventh Schedule"], "a": 2, "e": "The Seventh Schedule distributes legislative powers between the Union and the States (Article 246)."}, {"t": "sched", "q": "How many languages are listed in the Eighth Schedule?", "o": ["14", "18", "22", "24"], "a": 2, "e": "There were 14 originally. The 92nd Amendment (2003) added Bodo, Dogri, Maithili and Santhali, taking the total to 22."}, {"t": "sched", "q": "Which language was added to the Eighth Schedule by the 21st Amendment (1967)?", "o": ["Konkani", "Sindhi", "Nepali", "Manipuri"], "a": 1, "e": "Konkani, Manipuri and Nepali were added by the 71st Amendment (1992)."}, {"t": "sched", "q": "In I. R. Coelho (2007), the Supreme Court held that laws placed in the Ninth Schedule after which date can be reviewed if they violate the basic structure?", "o": ["26 January 1950", "24 April 1973", "25 June 1975", "1 January 1980"], "a": 1, "e": "24 April 1973 is the date of the Kesavananda Bharati judgment."}, {"t": "sched", "q": "The Tenth Schedule deals with:", "o": ["Panchayats", "Municipalities", "Disqualification on grounds of defection", "Languages"], "a": 2, "e": "Added by the 52nd Amendment (1985). The Speaker or Chairman decides disqualification."}, {"t": "sched", "q": "The Eleventh Schedule lists __ subjects for Panchayats, and the Twelfth lists __ subjects for Municipalities.", "o": ["29; 18", "18; 29", "22; 12", "29; 22"], "a": 0, "e": "Added by the 73rd and 74th Amendments (1992) respectively."}, {"t": "sched", "q": "The Fifth Schedule deals with:", "o": ["Tribal areas in the north-east", "Administration and control of Scheduled Areas and Scheduled Tribes", "Official languages", "Anti-defection"], "a": 1, "e": "It applies to Scheduled Areas outside Assam, Meghalaya, Tripura and Mizoram."}, {"t": "parl", "q": "Under Article 79, the Parliament of India consists of:", "o": ["Lok Sabha and Rajya Sabha", "President, Lok Sabha and Rajya Sabha", "President, Vice-President, Lok Sabha and Rajya Sabha", "Lok Sabha, Rajya Sabha and the Council of Ministers"], "a": 1, "e": "The President is an integral part of Parliament even though not a member of either House."}, {"t": "parl", "q": "What is the maximum strength of the Rajya Sabha laid down in the Constitution?", "o": ["238", "245", "250", "552"], "a": 2, "e": "Up to 238 elected representatives of states and UTs, plus 12 members nominated by the President."}, {"t": "parl", "q": "Members nominated by the President to the Rajya Sabha must have special knowledge in:", "o": ["Law, economics, science and sport", "Literature, science, art and social service", "Defence, diplomacy, finance and law", "Agriculture, industry, education and health"], "a": 1, "e": "Article 80(3) lists literature, science, art and social service."}, {"t": "parl", "q": "Which statement about the Rajya Sabha is correct?", "o": ["It is dissolved every five years", "It is a permanent body; one-third of members retire every second year", "Its members serve a four-year term", "It can be dissolved by the President on the PM's advice"], "a": 1, "e": "Members serve six-year terms. The Rajya Sabha is never dissolved."}, {"t": "parl", "q": "The minimum age to become a member of the Lok Sabha and the Rajya Sabha respectively is:", "o": ["21 and 25", "25 and 30", "25 and 35", "30 and 35"], "a": 1, "e": "35 is the minimum age for the President and Vice-President."}, {"t": "parl", "q": "Who decides whether a bill is a Money Bill?", "o": ["The President", "The Finance Minister", "The Speaker of the Lok Sabha", "The Chairman of the Rajya Sabha"], "a": 2, "e": "Under Article 110(3), the Speaker's decision is final."}, {"t": "parl", "q": "For how long can the Rajya Sabha keep a Money Bill?", "o": ["7 days", "14 days", "30 days", "6 months"], "a": 1, "e": "If it does not return the bill within 14 days, the bill is deemed passed by both Houses."}, {"t": "parl", "q": "A joint sitting of both Houses (Article 108) is presided over by:", "o": ["The President", "The Vice-President", "The Speaker of the Lok Sabha", "The Prime Minister"], "a": 2, "e": "In the Speaker's absence, the Deputy Speaker presides, then the Deputy Chairman of the Rajya Sabha."}, {"t": "parl", "q": "A joint sitting CANNOT be called for:", "o": ["Ordinary bills", "Money Bills and Constitutional Amendment Bills", "Financial bills", "Any bill passed by the Lok Sabha"], "a": 1, "e": "Joint sittings have been held only three times: Dowry Prohibition Bill (1961), Banking Service Commission (Repeal) Bill (1978) and Prevention of Terrorism Bill (2002)."}, {"t": "parl", "q": "The quorum to hold a sitting of either House is:", "o": ["One-fourth of total members", "One-tenth of total members", "One-third of members present", "50 members"], "a": 1, "e": "One-tenth of the total number of members of the House, including the presiding officer."}, {"t": "parl", "q": "'Zero Hour' in Parliament is:", "o": ["Mentioned in the Constitution", "Mentioned in the Rules of Procedure", "An Indian innovation not mentioned in the rules", "The last hour of a sitting"], "a": 2, "e": "It began in 1962 and starts right after Question Hour."}, {"t": "parl", "q": "A starred question in Parliament is one that:", "o": ["Requires a written answer", "Requires an oral answer, so supplementary questions can follow", "Is asked by a minister", "Is asked with less than 10 days' notice"], "a": 1, "e": "Unstarred questions get written answers; short notice questions need less than 10 days' notice."}, {"t": "parl", "q": "The maximum gap allowed between two sessions of Parliament is:", "o": ["3 months", "6 months", "9 months", "1 year"], "a": 1, "e": "Article 85 requires Parliament to meet so that six months do not pass between sessions."}, {"t": "parl", "q": "Who is the ex officio Chairman of the Rajya Sabha?", "o": ["The President", "The Vice-President", "The Speaker", "The senior-most member"], "a": 1, "e": "The Vice-President presides over the Rajya Sabha (Article 89)."}, {"t": "parl", "q": "Under Article 249, the Rajya Sabha can authorise Parliament to make laws on a State List subject if a resolution is passed by:", "o": ["A simple majority", "Two-thirds of members present and voting", "Three-fourths of total members", "A majority of total members"], "a": 1, "e": "This is a special power of the Rajya Sabha. Under Article 312, a similar resolution can create new All India Services."}, {"t": "parl", "q": "The President's power to issue ordinances when Parliament is not in session is in:", "o": ["Article 72", "Article 110", "Article 123", "Article 213"], "a": 2, "e": "Article 213 gives a similar power to Governors."}, {"t": "summit", "q": "The African Union became a permanent member of the G20 at which summit?", "o": ["Bali, 2022", "New Delhi, 2023", "Rio de Janeiro, 2024", "Johannesburg, 2025"], "a": 1, "e": "India's G20 presidency theme was 'Vasudhaiva Kutumbakam – One Earth, One Family, One Future'."}, {"t": "summit", "q": "The G20 was established in:", "o": ["1975", "1989", "1999", "2008"], "a": 2, "e": "It began in 1999 as a forum of finance ministers. Leaders' summits began in 2008 after the global financial crisis."}, {"t": "summit", "q": "Which countries joined BRICS as members from 1 January 2024?", "o": ["Egypt, Ethiopia, Iran and the UAE", "Saudi Arabia, Turkey, Argentina and Mexico", "Indonesia, Nigeria, Kenya and Vietnam", "Pakistan, Bangladesh, Sri Lanka and Nepal"], "a": 0, "e": "Argentina declined its invitation. Indonesia joined in January 2025."}, {"t": "summit", "q": "Where is the headquarters of the New Development Bank set up by BRICS?", "o": ["New Delhi", "Moscow", "Shanghai", "Johannesburg"], "a": 2, "e": "The NDB began operations in 2015. Its first president was K. V. Kamath of India."}, {"t": "summit", "q": "India became a full member of the Shanghai Cooperation Organisation (SCO) in:", "o": ["2001", "2005", "2017", "2023"], "a": 2, "e": "India and Pakistan both joined in 2017. The SCO was founded in 2001 and its Secretariat is in Beijing."}, {"t": "summit", "q": "Which four countries make up the Quad?", "o": ["India, USA, Japan, Australia", "India, USA, UK, France", "India, Japan, South Korea, Australia", "India, Russia, China, Brazil"], "a": 0, "e": "The Quadrilateral Security Dialogue focuses on a free and open Indo-Pacific."}, {"t": "summit", "q": "Where is the SAARC Secretariat located?", "o": ["New Delhi", "Dhaka", "Kathmandu", "Colombo"], "a": 2, "e": "SAARC was founded in Dhaka in 1985. It has 8 members; Afghanistan joined in 2007."}, {"t": "summit", "q": "BIMSTEC connects countries around which body of water?", "o": ["Arabian Sea", "Bay of Bengal", "South China Sea", "Indian Ocean rim"], "a": 1, "e": "It was formed by the Bangkok Declaration of 1997. It has 7 members and its Secretariat is in Dhaka."}, {"t": "summit", "q": "Where is the ASEAN Secretariat located?", "o": ["Bangkok", "Singapore", "Jakarta", "Kuala Lumpur"], "a": 2, "e": "ASEAN was founded by the Bangkok Declaration in 1967."}, {"t": "summit", "q": "The Paris Agreement aims to limit global warming to well below 2°C and pursue efforts to limit it to:", "o": ["1°C", "1.5°C", "2.5°C", "3°C"], "a": 1, "e": "It was adopted at COP21 in Paris in 2015."}, {"t": "summit", "q": "The International Solar Alliance was launched by India and which country?", "o": ["USA", "Japan", "France", "Germany"], "a": 2, "e": "It was launched at COP21 in Paris in 2015. Its headquarters is in Gurugram, India."}, {"t": "summit", "q": "Which country hosted COP30, the UN climate conference, in 2025?", "o": ["UAE", "Azerbaijan", "Brazil", "Egypt"], "a": 2, "e": "COP30 was held in Belém, Brazil. COP28 was in Dubai (2023) and COP29 in Baku (2024)."}, {"t": "summit", "q": "Which of these is NOT a member of the G7?", "o": ["Canada", "Italy", "Russia", "Japan"], "a": 2, "e": "Russia was suspended from the G8 in 2014. The G7 is the USA, UK, France, Germany, Italy, Japan and Canada."}, {"t": "summit", "q": "The IMF and World Bank were created at which conference?", "o": ["Yalta, 1945", "Bretton Woods, 1944", "San Francisco, 1945", "Geneva, 1947"], "a": 1, "e": "Both are known as the Bretton Woods institutions."}, {"t": "summit", "q": "The World Trade Organization came into being in __ and is headquartered in __.", "o": ["1947; New York", "1995; Geneva", "1995; Washington DC", "2001; Doha"], "a": 1, "e": "It replaced GATT (1947)."}]};
+
+/* ---------- helpers ---------- */
+const $ = (s, r=document) => r.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => new Date().toLocaleDateString('en-CA');
+const addDays = (d, n) => { const t = new Date(d + 'T12:00:00'); t.setDate(t.getDate() + n); return t.toLocaleDateString('en-CA'); };
+const shuffle = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const hash = s => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+const INTERVALS = [0, 1, 2, 4, 8, 16, 32]; // days until next review, by box
+const MASTER_BOX = 4;
+
+GK.questions.forEach(q => q.id = q.t + '-' + hash(q.q));
+const TOPIC = Object.fromEntries(GK.topics.map(t => [t.id, t]));
+
+/* ---------- state ---------- */
+const KEY = 'clat-drill-v1';
+const blank = () => ({ v: {}, g: {}, days: {}, custom: [], settings: { newWords: 5, gkSize: 12 }, started: today() });
+let S = blank();
+try { const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(blank(), JSON.parse(raw)); } catch (e) {}
+let storageOK = true;
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); storageOK = true; } catch (e) { storageOK = false; } }
+
+function vocabList() {
+  const base = VOCAB_RAW.map(([w, pos, m, s]) => ({ w, pos, m, s }));
+  const seen = new Set(base.map(x => x.w.toLowerCase()));
+  S.custom.forEach(c => { if (!seen.has(c.w.toLowerCase())) { base.push(Object.assign({ mine: true }, c)); seen.add(c.w.toLowerCase()); } });
+  return base;
+}
+let VOCAB = vocabList();
+const card = (bucket, id) => bucket[id] || { b: 0, d: null, n: 0, x: 0 };
+const isDue = c => c.b > 0 && c.d <= today();
+
+function record(bucket, id, correct) {
+  const c = Object.assign({}, card(bucket, id));
+  c.n++;
+  if (correct) { c.b = Math.min(c.b + 1, INTERVALS.length - 1); }
+  else { c.x++; c.b = 1; }
+  c.d = addDays(today(), correct ? INTERVALS[c.b] : 1);
+  bucket[id] = c;
+  const d = S.days[today()] || { a: 0, c: 0 };
+  d.a++; if (correct) d.c++;
+  S.days[today()] = d;
+  save();
+}
+
+function streak() {
+  let n = 0, d = today();
+  if (!S.days[d]) d = addDays(d, -1);
+  while (S.days[d]) { n++; d = addDays(d, -1); }
+  return n;
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2600); }
+
+/* ---------- navigation ---------- */
+let tab = 'today', session = null;
+function go(t) { tab = t; session = null; render(); window.scrollTo(0, 0); }
+$('#tabs').addEventListener('click', e => { const b = e.target.closest('button[data-tab]'); if (b) go(b.dataset.tab); });
+
+function render() {
+  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === tab && !session ? 'page' : 'false'));
+  const app = $('#app');
+  if (session) app.innerHTML = renderSession();
+  else app.innerHTML = ({ today: renderToday, vocab: renderVocab, gk: renderGK, progress: renderProgress })[tab]();
+  bind();
+}
+
+/* ---------- queue building ---------- */
+function vocabQueue() {
+  const due = shuffle(VOCAB.filter(x => isDue(card(S.v, x.w)))).slice(0, 15);
+  const fresh = VOCAB.filter(x => card(S.v, x.w).b === 0).slice(0, Math.max(0, Math.min(S.settings.newWords, 20 - due.length)));
+  const items = [];
+  fresh.forEach(x => items.push({ kind: 'learn', word: x }));
+  shuffle(due.concat(fresh)).forEach(x => items.push({ kind: 'vq', word: x, isNew: card(S.v, x.w).b === 0 }));
+  return items;
+}
+function gkQueue(topic) {
+  const pool = GK.questions.filter(q => !topic || q.t === topic);
+  const size = S.settings.gkSize;
+  const due = shuffle(pool.filter(q => isDue(card(S.g, q.id))));
+  let fresh = pool.filter(q => card(S.g, q.id).b === 0);
+  if (!topic) {
+    // spread new questions across topics, weakest-covered first
+    const byT = {}; fresh.forEach(q => (byT[q.t] = byT[q.t] || []).push(q));
+    const order = Object.keys(byT).sort((a, b) => topicStats(a).seen / topicStats(a).total - topicStats(b).seen / topicStats(b).total);
+    const mixed = []; let i = 0;
+    while (mixed.length < fresh.length) { order.forEach(t => { if (byT[t][i]) mixed.push(byT[t][i]); }); i++; }
+    fresh = mixed;
+  }
+  let picked = due.slice(0, size);
+  if (picked.length < size) picked = picked.concat(fresh.slice(0, size - picked.length));
+  if (topic && picked.length < size) {
+    const rest = shuffle(pool.filter(q => !picked.includes(q))).sort((a, b) => card(S.g, a.id).b - card(S.g, b.id).b);
+    picked = picked.concat(rest.slice(0, size - picked.length));
+  }
+  return shuffle(picked).map(q => ({ kind: 'gq', q, order: shuffle([0, 1, 2, 3]) }));
+}
+
+function startSession(type, topic) {
+  const items = type === 'vocab' ? vocabQueue() : gkQueue(topic);
+  if (!items.length) { toast(type === 'vocab' ? 'No words due. Come back tomorrow, or add new words.' : 'Nothing left in this set.'); return; }
+  session = { type, topic, items, i: 0, answered: null, right: 0, total: 0, missed: [], requeued: new Set() };
+  prepareItem();
+  render(); window.scrollTo(0, 0);
+}
+
+function prepareItem() {
+  const it = session.items[session.i];
+  if (!it || it.kind !== 'vq') return;
+  if (it.mode) return;
+  const x = it.word;
+  const hasCtx = x.s && new RegExp('\\b' + x.w.slice(0, Math.max(4, x.w.length - 3)), 'i').test(x.s);
+  it.mode = hasCtx && Math.random() < 0.65 ? 'ctx' : 'rev';
+  const others = shuffle(VOCAB.filter(o => o.w !== x.w && o.pos === x.pos));
+  const pad = shuffle(VOCAB.filter(o => o.w !== x.w && o.pos !== x.pos));
+  const distract = others.concat(pad).slice(0, 3);
+  it.choices = shuffle([x].concat(distract));
+}
+
+/* ---------- session rendering ---------- */
+function highlight(sentence, w) {
+  const stem = w.slice(0, Math.max(4, w.length - 3)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return esc(sentence).replace(new RegExp('\\b(' + stem + '\\w*)', 'i'), '<mark>$1</mark>');
+}
+function renderSession() {
+  const s = session;
+  if (s.i >= s.items.length) return renderSummary();
+  const it = s.items[s.i];
+  const pct = Math.round((s.i / s.items.length) * 100);
+  let body = '';
+  const label = s.type === 'vocab' ? 'Vocabulary' : (s.topic ? TOPIC[s.topic].name : 'GK daily mix');
+  const top = `<div class="topbar"><button class="link" data-act="quit" aria-label="End session">✕ End</button><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="num muted">${s.i + 1}/${s.items.length}</span></div>`;
+
+  if (it.kind === 'learn') {
+    const x = it.word;
+    body = `<div class="qcard">
+      <span class="chip newtag">New word</span>
+      <div><div class="word">${esc(x.w)}</div><div class="pos">${esc(x.pos)}</div></div>
+      <div class="learn"><div class="eyebrow">Meaning</div><div>${esc(x.m)}</div></div>
+      ${x.s ? `<div><div class="eyebrow">In context</div><div class="ctx">${highlight(x.s, x.w)}</div></div>` : ''}
+      <p class="note">Say the meaning out loud and make one sentence of your own. You'll be tested on it later in this session.</p>
+      <button class="btn block" data-act="next">Got it</button></div>`;
+  } else if (it.kind === 'vq') {
+    const x = it.word;
+    const head = it.mode === 'ctx'
+      ? `<div class="eyebrow">Vocabulary in context</div><div class="ctx">${highlight(x.s, x.w)}</div><div class="prompt">As used here, <em>${esc(x.w)}</em> most nearly means:</div>`
+      : `<div class="eyebrow">Which word fits?</div><div class="ctx">“${esc(x.m)}”</div><div class="prompt">Choose the word with this meaning:</div>`;
+    const opts = it.choices.map((c, k) => {
+      let cls = '';
+      if (s.answered !== null) { if (c.w === x.w) cls = 'right'; else if (k === s.answered) cls = 'wrong'; }
+      const txt = it.mode === 'ctx' ? esc(c.m) : `<span style="font-family:var(--serif);font-size:1.1rem;font-weight:600">${esc(c.w)}</span>`;
+      return `<button class="opt ${cls}" data-opt="${k}" ${s.answered !== null ? 'disabled' : ''}><span class="k">${'ABCD'[k]}</span><span>${txt}</span></button>`;
+    }).join('');
+    let fb = '';
+    if (s.answered !== null) {
+      const ok = it.choices[s.answered].w === x.w;
+      fb = `<div class="feedback ${ok ? 'good' : 'bad'}"><strong>${ok ? 'Correct' : 'Not quite'}</strong><em style="font-family:var(--serif)">${esc(x.w)}</em> (${esc(x.pos)}): ${esc(x.m)}${!ok && x.s && it.mode !== 'ctx' ? `<div class="ctx" style="font-size:1rem;margin-top:6px">${highlight(x.s, x.w)}</div>` : ''}</div>
+        <button class="btn block" data-act="next">Next</button>`;
+    }
+    body = `<div class="qcard">${it.isNew ? '<span class="chip newtag">New word</span>' : ''}${head}<div class="opts">${opts}</div>${fb}</div>`;
+  } else {
+    const q = it.q;
+    const opts = it.order.map((oi, k) => {
+      let cls = '';
+      if (s.answered !== null) { if (oi === q.a) cls = 'right'; else if (k === s.answered) cls = 'wrong'; }
+      return `<button class="opt ${cls}" data-opt="${k}" ${s.answered !== null ? 'disabled' : ''}><span class="k">${'ABCD'[k]}</span><span>${esc(q.o[oi])}</span></button>`;
+    }).join('');
+    let fb = '';
+    if (s.answered !== null) {
+      const ok = it.order[s.answered] === q.a;
+      fb = `<div class="feedback ${ok ? 'good' : 'bad'}"><strong>${ok ? 'Correct' : 'Answer: ' + esc(q.o[q.a])}</strong>${esc(q.e)}</div><button class="btn block" data-act="next">Next</button>`;
+    }
+    body = `<div class="qcard"><div class="eyebrow">${esc(TOPIC[q.t].name)}</div><div class="gkq">${esc(q.q)}</div><div class="opts">${opts}</div>${fb}</div>`;
+  }
+  return `<div class="stack">${top}${body}</div>`;
+}
+
+function renderSummary() {
+  const s = session;
+  const pct = s.total ? Math.round(s.right / s.total * 100) : 0;
+  const missed = s.missed.length ? `<div class="stack"><h2>Review these</h2><div class="list">${s.missed.map(m => `<div class="li"><div class="grow"><div class="${s.type === 'vocab' ? 'w' : ''}">${esc(m.a)}</div><div class="m" style="white-space:normal">${esc(m.b)}</div></div></div>`).join('')}</div></div>` : '<p class="muted">No mistakes this round.</p>';
+  return `<div class="stack">
+    <div class="eyebrow">Session complete</div>
+    <h1><span class="num">${s.right}</span> of <span class="num">${s.total}</span> correct</h1>
+    <div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div>
+    <p class="muted">${pct >= 85 ? 'Strong round. Keep the streak going.' : pct >= 60 ? 'Good work. The ones you missed will come back sooner.' : 'Tough set. Missed items come back tomorrow, which is how they stick.'}</p>
+    ${missed}
+    <div class="row"><button class="btn" data-act="home">Back to Today</button>${s.type === 'gk' ? `<button class="btn ghost" data-act="again">Another set</button>` : ''}</div>
+  </div>`;
+}
+
+function answer(k) {
+  const s = session, it = s.items[s.i];
+  if (s.answered !== null) return;
+  s.answered = k;
+  let ok;
+  if (it.kind === 'vq') {
+    ok = it.choices[k].w === it.word.w;
+    record(S.v, it.word.w, ok);
+    if (!ok) s.missed.push({ a: it.word.w, b: it.word.m });
+  } else {
+    ok = it.order[k] === it.q.a;
+    record(S.g, it.q.id, ok);
+    if (!ok) s.missed.push({ a: it.q.q, b: it.q.o[it.q.a] });
+  }
+  s.total++; if (ok) s.right++;
+  // a missed item comes back once at the end of this session
+  const key = it.kind === 'vq' ? it.word.w : it.q.id;
+  if (!ok && !s.requeued.has(key)) {
+    s.requeued.add(key);
+    const again = Object.assign({}, it, { mode: undefined, choices: undefined, order: it.order ? shuffle([0, 1, 2, 3]) : undefined, isNew: false, retry: true });
+    s.items.push(again);
+  }
+  render();
+  const fb = document.querySelector('.feedback'); if (fb) fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+function nextItem() { session.i++; session.answered = null; prepareItem(); render(); window.scrollTo(0, 0); }
+
+/* ---------- Today ---------- */
+function topicStats(t) {
+  const qs = GK.questions.filter(q => q.t === t);
+  let seen = 0, mastered = 0, due = 0, score = 0;
+  qs.forEach(q => { const c = card(S.g, q.id); if (c.b > 0) seen++; if (c.b >= MASTER_BOX) mastered++; if (isDue(c)) due++; score += Math.min(c.b, MASTER_BOX) / MASTER_BOX; });
+  return { total: qs.length, seen, mastered, due, pct: Math.round(score / qs.length * 100) };
+}
+function vocabStats() {
+  let seen = 0, mastered = 0, due = 0;
+  VOCAB.forEach(x => { const c = card(S.v, x.w); if (c.b > 0) seen++; if (c.b >= MASTER_BOX) mastered++; if (isDue(c)) due++; });
+  return { total: VOCAB.length, seen, mastered, due, fresh: VOCAB.length - seen };
+}
+function weekStrip() {
+  let cells = '';
+  for (let i = 13; i >= 0; i--) { const d = addDays(today(), -i); const a = (S.days[d] || {}).a || 0; cells += `<i class="${a >= 20 ? 'l2' : a > 0 ? 'l1' : ''}" title="${d}: ${a} answered"></i>`; }
+  return `<div class="week" aria-label="Activity over the last 14 days">${cells}</div>`;
+}
+function renderToday() {
+  const vs = vocabStats();
+  const gkDue = GK.questions.filter(q => isDue(card(S.g, q.id))).length;
+  const gkNew = GK.questions.filter(q => card(S.g, q.id).b === 0).length;
+  const d = S.days[today()] || { a: 0, c: 0 };
+  const hr = new Date().getHours();
+  const greet = hr < 12 ? 'Good morning' : hr < 17 ? 'Good afternoon' : 'Good evening';
+  const newToday = Math.min(S.settings.newWords, vs.fresh);
+  return `<div class="stack" style="gap:22px">
+    <div class="hero">
+      <div class="eyebrow">CLAT 2029 · ${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+      <h1>${greet}, Avani</h1>
+      <div class="streak">
+        <div class="stat"><b>${streak()}</b><span>day streak</span></div>
+        <div class="stat"><b>${d.a}</b><span>answered today</span></div>
+        <div class="stat"><b>${d.a ? Math.round(d.c / d.a * 100) + '%' : '–'}</b><span>accuracy today</span></div>
+      </div>
+    </div>
+    <div class="drill">
+      <div class="spread"><h2>Vocabulary</h2><span class="muted num">~8 min</span></div>
+      <div class="chips">${vs.due ? `<span class="chip">${vs.due} to review</span>` : ''}${newToday ? `<span class="chip plain">${newToday} new words</span>` : ''}${!vs.due && !newToday ? '<span class="chip good">All done for today</span>' : ''}</div>
+      <p class="note">Words appear inside real sentences, the way CLAT asks them. Missed words come back tomorrow.</p>
+      <button class="btn block" data-act="start-vocab" ${!vs.due && !newToday ? 'disabled' : ''}>Start vocabulary</button>
+    </div>
+    <div class="drill">
+      <div class="spread"><h2>GK</h2><span class="muted num">~10 min</span></div>
+      <div class="chips">${gkDue ? `<span class="chip">${gkDue} to review</span>` : ''}${gkNew ? `<span class="chip plain">${gkNew} not yet seen</span>` : ''}</div>
+      <p class="note">A mixed set of ${S.settings.gkSize} from your weak topics. Topics you've covered least come first.</p>
+      <button class="btn block" data-act="start-gk">Start GK mix</button>
+    </div>
+    <div class="stack" style="gap:8px"><div class="spread"><span class="eyebrow">Last 14 days</span><span class="note">darker = 20+ answers</span></div>${weekStrip()}</div>
+    ${storageOK ? '' : '<p class="note" style="color:var(--bad)">This browser is not saving progress. Use Progress → Backup to keep a copy.</p>'}
+  </div>`;
+}
+
+/* ---------- Words tab ---------- */
+let vocabFilter = '', vocabView = 'all';
+function boxLabel(c) {
+  if (c.b === 0) return '<span class="chip plain">new</span>';
+  if (c.b >= MASTER_BOX) return '<span class="chip good">mastered</span>';
+  if (c.x >= 2 && c.b <= 2) return '<span class="chip bad">tricky</span>';
+  return '<span class="chip">learning</span>';
+}
+function renderVocab() {
+  const vs = vocabStats();
+  const q = vocabFilter.trim().toLowerCase();
+  let list = VOCAB.filter(x => !q || x.w.toLowerCase().includes(q) || x.m.toLowerCase().includes(q));
+  if (vocabView === 'tricky') list = list.filter(x => { const c = card(S.v, x.w); return c.x >= 1; }).sort((a, b) => card(S.v, b.w).x - card(S.v, a.w).x);
+  if (vocabView === 'mine') list = list.filter(x => x.mine);
+  return `<div class="stack" style="gap:18px">
+    <div><div class="eyebrow">Word bank</div><h1>${vs.total} words</h1><p class="muted">${vs.mastered} mastered · ${vs.seen - vs.mastered} learning · ${vs.fresh} not started</p></div>
+    <details id="addbox"><summary>Add a word you came across</summary>
+      <form id="addform" class="stack" style="margin-top:12px">
+        <label>Word<input type="text" id="aw" required autocomplete="off" autocapitalize="none"></label>
+        <label>Part of speech<select id="ap"><option>noun</option><option>verb</option><option selected>adjective</option><option>adverb</option></select></label>
+        <label>Meaning<input type="text" id="am" required autocomplete="off"></label>
+        <label>Sentence where you saw it (optional, but helps)<textarea id="as"></textarea></label>
+        <button class="btn" type="submit">Add to my words</button>
+        <p class="note">New words join your daily set straight away.</p>
+      </form>
+    </details>
+    <input type="search" id="vsearch" placeholder="Search words or meanings" value="${esc(vocabFilter)}" aria-label="Search words">
+    <div class="chips" role="tablist">
+      ${['all', 'tricky', 'mine'].map(v => `<button class="chip ${vocabView === v ? '' : 'plain'}" style="border:${vocabView === v ? '0' : ''};cursor:pointer" data-vview="${v}">${{ all: 'All', tricky: 'Most missed', mine: 'Added by me' }[v]}</button>`).join('')}
+    </div>
+    <div class="list">${list.length ? list.map(x => { const c = card(S.v, x.w); return `<div class="li"><div class="grow"><div class="w">${esc(x.w)} <span class="pos" style="font-size:.85rem;font-weight:400">${esc(x.pos)}</span></div><div class="m">${esc(x.m)}</div></div>${boxLabel(c)}</div>`; }).join('') : '<p class="muted" style="padding:12px 0">Nothing here yet.</p>'}</div>
+  </div>`;
+}
+
+/* ---------- GK tab ---------- */
+function renderGK() {
+  return `<div class="stack" style="gap:18px">
+    <div><div class="eyebrow">General knowledge</div><h1>Weak-area topics</h1><p class="muted">These are the topics flagged in the last mock review. Tap one to drill it.</p></div>
+    <div class="list" style="border-top:0">${GK.topics.map(t => { const st = topicStats(t.id); return `<button class="topic" data-topic="${t.id}">
+      <div class="spread" style="width:100%"><strong>${esc(t.name)}</strong><span class="num muted">${st.pct}%</span></div>
+      <div class="meter" aria-hidden="true"><i style="width:${st.pct}%"></i></div>
+      <span class="note">${st.seen}/${st.total} seen · ${st.mastered} mastered${st.due ? ` · <span style="color:var(--accent);font-weight:600">${st.due} due</span>` : ''}</span></button>`; }).join('')}</div>
+    <p class="note">Mastery means answering a question correctly several times across different days. Current affairs (recent summits and events) will be added closer to the exam, since CLAT covers roughly the last 12–18 months.</p>
+  </div>`;
+}
+
+/* ---------- Progress tab ---------- */
+function report() {
+  const vs = vocabStats();
+  const lines = [`Avani · CLAT drill report · ${new Date().toLocaleDateString('en-IN')}`, `Streak: ${streak()} days`];
+  let a = 0, c = 0; for (let i = 0; i < 7; i++) { const d = S.days[addDays(today(), -i)]; if (d) { a += d.a; c += d.c; } }
+  lines.push(`Last 7 days: ${a} questions, ${a ? Math.round(c / a * 100) : 0}% correct`);
+  lines.push(`Vocabulary: ${vs.mastered} mastered, ${vs.seen - vs.mastered} learning, ${vs.fresh} not started`);
+  lines.push('GK mastery:');
+  GK.topics.forEach(t => { const st = topicStats(t.id); lines.push(`  ${t.name}: ${st.pct}% (${st.seen}/${st.total} seen)`); });
+  const tricky = VOCAB.filter(x => card(S.v, x.w).x >= 2).map(x => x.w);
+  if (tricky.length) lines.push('Tricky words: ' + tricky.slice(0, 10).join(', '));
+  return lines.join('\n');
+}
+function renderProgress() {
+  const vs = vocabStats();
+  let a = 0, c = 0; for (let i = 0; i < 7; i++) { const d = S.days[addDays(today(), -i)]; if (d) { a += d.a; c += d.c; } }
+  const tricky = VOCAB.filter(x => card(S.v, x.w).x >= 1).sort((p, q) => card(S.v, q.w).x - card(S.v, p.w).x).slice(0, 8);
+  const gkTricky = GK.questions.filter(q => card(S.g, q.id).x >= 1).sort((p, q) => card(S.g, q.id).x - card(S.g, p.id).x).slice(0, 5);
+  return `<div class="stack" style="gap:22px">
+    <div><div class="eyebrow">Progress</div><h1>How it's going</h1></div>
+    <div class="streak">
+      <div class="stat"><b>${streak()}</b><span>day streak</span></div>
+      <div class="stat"><b>${a}</b><span>answered this week</span></div>
+      <div class="stat"><b>${a ? Math.round(c / a * 100) + '%' : '–'}</b><span>accuracy this week</span></div>
+    </div>
+    <div class="stack" style="gap:8px"><span class="eyebrow">Last 14 days</span>${weekStrip()}</div>
+    <div class="stack" style="gap:10px">
+      <h2>Vocabulary</h2>
+      <div class="meter"><i style="width:${Math.round(vs.mastered / vs.total * 100)}%"></i></div>
+      <span class="note">${vs.mastered} of ${vs.total} words mastered · ${vs.seen - vs.mastered} learning</span>
+      ${tricky.length ? `<div class="chips">${tricky.map(x => `<span class="chip bad">${esc(x.w)}</span>`).join('')}</div><span class="note">Most missed words</span>` : ''}
+    </div>
+    <div class="stack" style="gap:10px">
+      <h2>GK by topic</h2>
+      ${GK.topics.map(t => { const st = topicStats(t.id); return `<div class="stack" style="gap:4px"><div class="spread"><span>${esc(t.name)}</span><span class="num muted">${st.pct}%</span></div><div class="meter"><i style="width:${st.pct}%"></i></div></div>`; }).join('')}
+      ${gkTricky.length ? `<details><summary>Most missed GK questions</summary><div class="list" style="margin-top:10px">${gkTricky.map(q => `<div class="li"><div class="grow"><div>${esc(q.q)}</div><div class="m" style="white-space:normal;color:var(--good)">${esc(q.o[q.a])}</div></div></div>`).join('')}</div></details>` : ''}
+    </div>
+    <div class="stack" style="gap:10px">
+      <h2>Share with a parent or mentor</h2>
+      <p class="note">Copies a short summary you can paste into WhatsApp.</p>
+      <button class="btn ghost" data-act="report">Copy progress report</button>
+    </div>
+    <details><summary>Settings and backup</summary>
+      <div class="stack" style="margin-top:12px">
+        <label>New words per day<select id="setNew">${[3, 5, 8, 10].map(n => `<option ${S.settings.newWords === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <label>GK questions per set<select id="setGk">${[8, 12, 15, 20].map(n => `<option ${S.settings.gkSize === n ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
+        <p class="note">Progress is saved in this browser on this phone. Copy a backup code now and then, and keep it in Notes or WhatsApp. If progress is ever lost, paste the code below to restore it.</p>
+        <button class="btn ghost" data-act="backup">Copy backup code</button>
+        <textarea id="restore" placeholder="Paste a backup code here" aria-label="Backup code"></textarea>
+        <button class="btn ghost" data-act="restore">Restore from code</button>
+      </div>
+    </details>
+  </div>`;
+}
+
+async function copy(text, okMsg) {
+  try { await navigator.clipboard.writeText(text); toast(okMsg); }
+  catch (e) {
+    const ta = $('#restore') || document.createElement('textarea');
+    ta.value = text; ta.focus(); ta.select(); toast('Copy blocked here. The text is selected below; copy it manually.');
+  }
+}
+
+/* ---------- events ---------- */
+function bind() {
+  const app = $('#app');
+  app.onclick = e => {
+    const opt = e.target.closest('[data-opt]'); if (opt && !opt.disabled) return answer(+opt.dataset.opt);
+    const t = e.target.closest('[data-topic]'); if (t) return startSession('gk', t.dataset.topic);
+    const vv = e.target.closest('[data-vview]'); if (vv) { vocabView = vv.dataset.vview; return render(); }
+    const a = e.target.closest('[data-act]'); if (!a) return;
+    const act = a.dataset.act;
+    if (act === 'start-vocab') startSession('vocab');
+    else if (act === 'start-gk') startSession('gk');
+    else if (act === 'next') nextItem();
+    else if (act === 'quit') { if (session.total) { session.i = session.items.length; render(); } else go('today'); }
+    else if (act === 'home') go('today');
+    else if (act === 'again') startSession('gk', session.topic);
+    else if (act === 'report') copy(report(), 'Report copied. Paste it into WhatsApp.');
+    else if (act === 'backup') copy(btoa(unescape(encodeURIComponent(JSON.stringify(S)))), 'Backup code copied.');
+    else if (act === 'restore') {
+      const v = ($('#restore').value || '').trim();
+      try { const data = JSON.parse(decodeURIComponent(escape(atob(v)))); if (!data.v || !data.g) throw 0; S = Object.assign(blank(), data); save(); VOCAB = vocabList(); toast('Progress restored.'); render(); }
+      catch (err) { toast('That code did not work. Check that you pasted all of it.'); }
+    }
+  };
+  const vs = $('#vsearch');
+  if (vs) vs.oninput = () => { vocabFilter = vs.value; const pos = vs.selectionStart; render(); const n = $('#vsearch'); n.focus(); n.setSelectionRange(pos, pos); };
+  const f = $('#addform');
+  if (f) f.onsubmit = e => {
+    e.preventDefault();
+    const w = $('#aw').value.trim(), m = $('#am').value.trim();
+    if (!w || !m) return;
+    if (VOCAB.some(x => x.w.toLowerCase() === w.toLowerCase())) { toast(`"${w}" is already in your word bank.`); return; }
+    S.custom.push({ w, pos: $('#ap').value, m, s: $('#as').value.trim() });
+    save(); VOCAB = vocabList(); vocabView = 'mine'; toast(`Added "${w}".`); render();
+  };
+  const sn = $('#setNew'); if (sn) sn.onchange = () => { S.settings.newWords = +sn.value; save(); toast('Saved.'); };
+  const sg = $('#setGk'); if (sg) sg.onchange = () => { S.settings.gkSize = +sg.value; save(); toast('Saved.'); };
+}
+
+render();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw && nw.addEventListener('statechange', () => {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) toast('New questions are ready. Close and reopen the app to load them.');
+        });
+      });
+    }).catch(() => {});
+  });
+}
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+</script>
+</body>
+</html>
